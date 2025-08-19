@@ -10,22 +10,20 @@ public class ControlPanel extends JPanel {
         this.canvas = canvas;
         this.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 5));
 
-        ButtonGroup toolGroup = new ButtonGroup();
         Dimension buttonSize = new Dimension(40, 40);
 
-        JPanel toolsPanel = new JPanel();
-        toolsPanel.setLayout(new GridLayout(2, 1, 5, 5));
-        toolsPanel.setBorder(BorderFactory.createTitledBorder("Araçlar"));
         
+        JPanel toolsPanel = new JPanel(new GridLayout(2, 1, 5, 5));
+        toolsPanel.setBorder(BorderFactory.createTitledBorder("Araçlar"));
+        ButtonGroup toolGroup = new ButtonGroup();
         JToggleButton penButton = createToolButton(DrawingCanvas.Tool.PEN, toolGroup, buttonSize);
         JToggleButton eraserButton = createToolButton(DrawingCanvas.Tool.ERASER, toolGroup, buttonSize);
         toolsPanel.add(penButton);
         toolsPanel.add(eraserButton);
+
         
-        JPanel shapesPanel = new JPanel();
-        shapesPanel.setLayout(new GridLayout(2, 2, 5, 5));
+        JPanel shapesPanel = new JPanel(new GridLayout(2, 2, 5, 5));
         shapesPanel.setBorder(BorderFactory.createTitledBorder("Şekiller"));
-        
         JToggleButton lineButton = createToolButton(DrawingCanvas.Tool.LINE, toolGroup, buttonSize);
         JToggleButton rectButton = createToolButton(DrawingCanvas.Tool.RECTANGLE, toolGroup, buttonSize);
         JToggleButton ovalButton = createToolButton(DrawingCanvas.Tool.OVAL, toolGroup, buttonSize);
@@ -34,9 +32,51 @@ public class ControlPanel extends JPanel {
         shapesPanel.add(rectButton);
         shapesPanel.add(ovalButton);
         shapesPanel.add(roundRectButton);
-
         penButton.setSelected(true);
 
+        
+        JPanel brushPanel = new JPanel();
+        brushPanel.setLayout(new BoxLayout(brushPanel, BoxLayout.Y_AXIS)); // Dikey düzen
+        brushPanel.setBorder(BorderFactory.createTitledBorder("Fırça Tipi"));
+
+        
+        ButtonGroup tipGroup = new ButtonGroup();
+        JToggleButton roundTipButton = new JToggleButton("Yuvarlak");
+        JToggleButton squareTipButton = new JToggleButton("Kare");
+        tipGroup.add(roundTipButton);
+        tipGroup.add(squareTipButton);
+        roundTipButton.setSelected(true);
+        roundTipButton.addActionListener(e -> canvas.setBrushTip(DrawingCanvas.BrushTip.ROUND));
+        squareTipButton.addActionListener(e -> canvas.setBrushTip(DrawingCanvas.BrushTip.SQUARE));
+        
+        
+        ButtonGroup styleGroup = new ButtonGroup();
+        JToggleButton solidStyleButton = new JToggleButton("Düz");
+        JToggleButton dashedStyleButton = new JToggleButton("Kesikli");
+        JToggleButton dottedStyleButton = new JToggleButton("Noktalı");
+        styleGroup.add(solidStyleButton);
+        styleGroup.add(dashedStyleButton);
+        styleGroup.add(dottedStyleButton);
+        solidStyleButton.setSelected(true);
+        solidStyleButton.addActionListener(e -> canvas.setBrushStyle(DrawingCanvas.BrushStyle.SOLID));
+        dashedStyleButton.addActionListener(e -> canvas.setBrushStyle(DrawingCanvas.BrushStyle.DASHED));
+        dottedStyleButton.addActionListener(e -> canvas.setBrushStyle(DrawingCanvas.BrushStyle.DOTTED));
+        
+        
+        JPanel tipPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        tipPanel.add(roundTipButton);
+        tipPanel.add(squareTipButton);
+        JPanel stylePanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        stylePanel.add(solidStyleButton);
+        stylePanel.add(dashedStyleButton);
+        stylePanel.add(dottedStyleButton);
+        
+        brushPanel.add(new JLabel("Uç Tipi:"));
+        brushPanel.add(tipPanel);
+        brushPanel.add(new JLabel("Çizgi Stili:"));
+        brushPanel.add(stylePanel);
+
+        
         JPanel otherControls = new JPanel(new GridLayout(2, 1, 5, 5));
         JButton colorButton = new JButton("Renk Seç");
         JButton clearButton = new JButton("Temizle");
@@ -45,6 +85,7 @@ public class ControlPanel extends JPanel {
         colorButton.addActionListener(e -> this.canvas.chooseColor());
         clearButton.addActionListener(e -> this.canvas.clearCanvas());
 
+        
         JPanel sizePanel = new JPanel();
         sizePanel.setLayout(new BoxLayout(sizePanel, BoxLayout.Y_AXIS));
         JLabel sizeLabel = new JLabel("Boyut: 5");
@@ -58,8 +99,10 @@ public class ControlPanel extends JPanel {
             canvas.setBrushSize(newSize);
         });
 
+        
         this.add(toolsPanel);
         this.add(shapesPanel);
+        this.add(brushPanel);
         this.add(otherControls);
         this.add(sizePanel);
     }
@@ -80,7 +123,6 @@ public class ControlPanel extends JPanel {
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2d.setColor(Color.BLACK);
         int pad = 4;
-
         switch (tool) {
             case PEN:
                 g2d.setStroke(new BasicStroke(2));
@@ -112,7 +154,6 @@ public class ControlPanel extends JPanel {
                 g2d.drawRoundRect(pad, pad, width - (2 * pad), height - (2 * pad), 8, 8);
                 break;
         }
-
         g2d.dispose();
         return new ImageIcon(image);
     }
